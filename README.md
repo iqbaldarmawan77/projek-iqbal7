@@ -1,2 +1,937 @@
 # projek-iqbal7
 aplikasi kasr
+<!DOCTYPE html>
+<html lang="id" class="h-full">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kasir Restoran Padang - POS System</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    colors: {
+                        amber: {
+                            50: '#FFFBEB',
+                            100: '#FEF3C7',
+                            500: '#F59E0B',
+                            600: '#D97706',
+                            700: '#B45309',
+                        }
+                    },
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+<body class="h-full bg-gray-100 text-gray-800 font-sans antialiased flex flex-col">
+
+    <!-- Header / Navbar -->
+    <header class="bg-gradient-to-r from-amber-600 to-amber-700 text-white shadow-md z-20">
+        <div class="max-w-7xl mx-auto px-4 py-3 flex justify-between items-center">
+            <div class="flex items-center space-x-3">
+                <div class="bg-white/20 p-2 rounded-xl backdrop-blur-sm">
+                    <i class="fa-solid fa-utensils text-xl"></i>
+                </div>
+                <div>
+                    <h1 class="font-bold text-lg leading-tight">Rumah Makan Sederhana POS</h1>
+                    <p class="text-xs text-amber-100">Sistem Kasir & Manajemen Menu</p>
+                </div>
+            </div>
+            <div class="flex items-center space-x-2">
+                <button onclick="openInstallModal()" class="bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-3 py-2 rounded-xl shadow transition text-xs flex items-center space-x-1.5 animate-pulse">
+                    <i class="fa-solid fa-download"></i>
+                    <span class="hidden sm:inline">Install App (APK/OS)</span>
+                </button>
+                <button onclick="openDailyReportModal()" class="bg-emerald-600 hover:bg-emerald-500 text-white font-medium px-3 py-2 rounded-xl shadow transition text-xs flex items-center space-x-1.5">
+                    <i class="fa-solid fa-chart-line"></i>
+                    <span class="hidden sm:inline">Laporan Harian</span>
+                </button>
+                <button onclick="openAddMenuModal()" class="bg-amber-500 hover:bg-amber-400 text-white font-medium px-3 py-2 rounded-xl shadow transition text-xs flex items-center space-x-1.5">
+                    <i class="fa-solid fa-plus-circle"></i>
+                    <span class="hidden sm:inline">Tambah Menu</span>
+                </button>
+                <button onclick="openCashierSessionModal()" class="bg-white text-amber-700 hover:bg-amber-50 font-medium px-3 py-2 rounded-xl shadow transition text-xs flex items-center space-x-1.5">
+                    <i class="fa-solid fa-cash-register"></i>
+                    <span class="hidden sm:inline">Sesi Kasir</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Main Content Layout -->
+    <main class="flex-1 max-w-7xl w-full mx-auto p-3 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 overflow-hidden">
+        
+        <!-- Left Section: Menu Catalog & Categories (Span 7 on lg) -->
+        <section class="lg:col-span-7 flex flex-col bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden h-[calc(100vh-130px)] lg:h-[calc(100vh-110px)]">
+            <!-- Search and Filter Bar -->
+            <div class="p-4 border-b border-gray-100 bg-white sticky top-0 z-10">
+                <div class="relative mb-3">
+                    <span class="absolute inset-y-0 left-0 flex items-center pl-3 text-gray-400">
+                        <i class="fa-solid fa-search"></i>
+                    </span>
+                    <input type="text" id="search-input" oninput="filterMenu()" placeholder="Cari menu makanan atau minuman..." class="w-full pl-10 pr-4 py-2.5 bg-gray-50 border border-gray-200 rounded-xl text-sm focus:outline-none focus:ring-2 focus:ring-amber-500 focus:bg-white transition">
+                </div>
+                
+                <!-- Category Tabs -->
+                <div class="flex space-x-2 overflow-x-auto pb-1 no-scrollbar">
+                    <button onclick="filterCategory('all')" id="cat-btn-all" class="category-btn whitespace-nowrap px-4 py-2 rounded-xl text-xs font-semibold bg-amber-600 text-white shadow-sm transition">Semua Menu</button>
+                    <button onclick="filterCategory('utama')" id="cat-btn-utama" class="category-btn whitespace-nowrap px-4 py-2 rounded-xl text-xs font-semibold bg-gray-100 text-gray-600 hover:bg-gray-200 transition">Makanan Utama</button>
+                    <button onclick="filterCategory('pendamping')" id="cat-btn-pendamping" class="category-btn whitespace-nowrap px-4 py-2 rounded-xl text-xs font-semibold bg-gray-100 text-gray-600 hover:bg-gray-200 transition">Lauk Pendamping</button>
+                    <button onclick="filterCategory('sayur')" id="cat-btn-sayur" class="category-btn whitespace-nowrap px-4 py-2 rounded-xl text-xs font-semibold bg-gray-100 text-gray-600 hover:bg-gray-200 transition">Sayur & Lalapan</button>
+                    <button onclick="filterCategory('minuman')" id="cat-btn-minuman" class="category-btn whitespace-nowrap px-4 py-2 rounded-xl text-xs font-semibold bg-gray-100 text-gray-600 hover:bg-gray-200 transition">Minuman Tradisional</button>
+                </div>
+            </div>
+
+            <!-- Menu Grid Container -->
+            <div id="menu-grid" class="flex-1 overflow-y-auto p-4 grid grid-cols-2 sm:grid-cols-3 gap-4 content-start">
+                <!-- Dynamically populated by JS -->
+            </div>
+        </section>
+
+        <!-- Right Section: Cart & Payment Summary (Span 5 on lg) -->
+        <section class="lg:col-span-5 flex flex-col bg-white rounded-2xl shadow-sm border border-gray-200 overflow-hidden h-[calc(100vh-130px)] lg:h-[calc(100vh-110px)]">
+            <!-- Cart Header -->
+            <div class="p-4 border-b border-gray-100 bg-gray-50 flex justify-between items-center">
+                <div class="flex items-center space-x-2">
+                    <i class="fa-solid fa-receipt text-amber-600"></i>
+                    <h2 class="font-bold text-gray-800">Pesanan Aktif</h2>
+                </div>
+                <button onclick="clearCart()" class="text-xs text-red-500 hover:text-red-700 font-medium transition flex items-center space-x-1">
+                    <i class="fa-solid fa-trash-can"></i>
+                    <span>Kosongkan</span>
+                </button>
+            </div>
+
+            <!-- Customer / Table Details -->
+            <div class="p-3 bg-amber-50/50 border-b border-amber-100 flex items-center justify-between text-xs">
+                <div>
+                    <span class="text-gray-500">Pelanggan:</span> 
+                    <span class="font-semibold text-gray-800" id="display-customer-name">Umum / Tamu</span>
+                </div>
+                <div>
+                    <span class="text-gray-500">Meja:</span> 
+                    <span class="font-semibold text-gray-800" id="display-table-no">Meja 01</span>
+                </div>
+                <button onclick="openTableModal()" class="text-amber-600 hover:underline font-semibold">Ubah</button>
+            </div>
+
+            <!-- Cart Items List -->
+            <div id="cart-items-container" class="flex-1 overflow-y-auto p-4 space-y-3 divide-y divide-gray-100">
+                <div class="text-center text-gray-400 py-12">
+                    <i class="fa-solid fa-basket-shopping text-4xl mb-2 text-gray-300"></i>
+                    <p class="text-sm">Belum ada pesanan dipilih.<br>Silakan klik menu di sebelah kiri.</p>
+                </div>
+            </div>
+
+            <!-- Cart Summary & Action Buttons -->
+            <div class="p-4 border-t border-gray-100 bg-gray-50 space-y-2">
+                <div class="flex justify-between text-xs text-gray-600">
+                    <span>Subtotal</span>
+                    <span id="subtotal-price">Rp 0</span>
+                </div>
+                <div class="flex justify-between text-xs text-gray-600">
+                    <span>Pajak Restoran (10%)</span>
+                    <span id="tax-price">Rp 0</span>
+                </div>
+                <div class="flex justify-between text-sm font-bold text-gray-900 pt-2 border-t border-gray-200">
+                    <span>Total Pembayaran</span>
+                    <span id="total-price" class="text-amber-600 text-base">Rp 0</span>
+                </div>
+
+                <div class="grid grid-cols-2 gap-2 pt-2">
+                    <button onclick="processCheckout('QRIS')" class="w-full bg-amber-100 text-amber-800 hover:bg-amber-200 font-semibold py-3 px-4 rounded-xl text-xs transition flex items-center justify-center space-x-1.5">
+                        <i class="fa-solid fa-qrcode"></i>
+                        <span>QRIS / Transfer</span>
+                    </button>
+                    <button onclick="processCheckout('Tunai')" class="w-full bg-amber-600 text-white hover:bg-amber-700 font-semibold py-3 px-4 rounded-xl text-xs shadow transition flex items-center justify-center space-x-1.5">
+                        <i class="fa-solid fa-money-bill-wave"></i>
+                        <span>Bayar Tunai</span>
+                    </button>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Modal: Cashier Session / Settings -->
+    <div id="session-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl animate-scale-up">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-lg text-gray-900">Mulai Sesi Kasir Baru</h3>
+                <button onclick="closeModal('session-modal')" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <p class="text-xs text-gray-500 mb-4">Kelola pesanan, catat penjualan, dan layani tamu dengan cepat.</p>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">Nama Kasir</label>
+                    <input type="text" id="modal-cashier-name" value="Budi Santoso" class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">Nomor Register / Kasir</label>
+                    <input type="text" id="modal-register-no" value="POS-01 Padang" class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end space-x-2">
+                <button onclick="closeModal('session-modal')" class="px-4 py-2 border rounded-xl text-xs font-semibold text-gray-600 hover:bg-gray-50">Batal</button>
+                <button onclick="saveCashierSession()" class="px-4 py-2 bg-amber-600 text-white rounded-xl text-xs font-semibold hover:bg-amber-700 shadow">Simpan & Mulai</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Table & Customer Info -->
+    <div id="table-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-lg text-gray-900">Atur Pelanggan & Meja</h3>
+                <button onclick="closeModal('table-modal')" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <div class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">Nama Pelanggan</label>
+                    <input type="text" id="input-customer-name" placeholder="cth. Bpk. Joko" class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">Nomor Meja</label>
+                    <select id="input-table-no" class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                        <option value="Meja 01">Meja 01 - Dekat Jendela</option>
+                        <option value="Meja 02">Meja 02 - Tengah</option>
+                        <option value="Meja 03">Meja 03 - AC Utama</option>
+                        <option value="Meja 04">Meja 04 - VIP</option>
+                        <option value="Takeaway">Bungkus / Takeaway</option>
+                    </select>
+                </div>
+            </div>
+            <div class="mt-6 flex justify-end space-x-2">
+                <button onclick="closeModal('table-modal')" class="px-4 py-2 border rounded-xl text-xs font-semibold text-gray-600 hover:bg-gray-50">Batal</button>
+                <button onclick="saveTableCustomer()" class="px-4 py-2 bg-amber-600 text-white rounded-xl text-xs font-semibold hover:bg-amber-700 shadow">Terapkan</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Payment Checkout & Receipt -->
+    <div id="payment-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl text-center">
+            <div id="payment-success-icon" class="w-16 h-16 bg-green-100 text-green-600 rounded-full flex items-center justify-center mx-auto mb-4 text-2xl">
+                <i class="fa-solid fa-check"></i>
+            </div>
+            <h3 class="font-bold text-lg text-gray-900 mb-1" id="payment-modal-title">Pembayaran Berhasil!</h3>
+            <p class="text-xs text-gray-500 mb-4" id="payment-modal-desc">Transaksi telah dicatat ke dalam sistem kasir.</p>
+            
+            <div id="receipt-summary" class="bg-gray-50 p-4 rounded-xl text-left text-xs space-y-1 mb-6 border border-gray-100">
+                <!-- Receipt details populated via JS -->
+            </div>
+
+            <div class="flex space-x-2">
+                <button onclick="printReceipt()" class="flex-1 bg-gray-100 text-gray-700 hover:bg-gray-200 py-2.5 rounded-xl text-xs font-semibold transition">Cetak Struk</button>
+                <button onclick="finishTransaction()" class="flex-1 bg-amber-600 text-white hover:bg-amber-700 py-2.5 rounded-xl text-xs font-semibold shadow transition">Transaksi Baru</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Add New Menu Item -->
+    <div id="add-menu-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-md w-full p-6 shadow-xl">
+            <div class="flex justify-between items-center mb-4">
+                <h3 class="font-bold text-lg text-gray-900">Tambah Menu Baru</h3>
+                <button onclick="closeModal('add-menu-modal')" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+            <form id="add-menu-form" onsubmit="handleAddNewMenu(event)" class="space-y-3">
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">Nama Menu</label>
+                    <input type="text" id="new-menu-name" required placeholder="cth. Dendeng Batokok" class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">Kategori</label>
+                    <select id="new-menu-category" class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                        <option value="utama">Makanan Utama</option>
+                        <option value="pendamping">Lauk Pendamping</option>
+                        <option value="sayur">Sayur & Lalapan</option>
+                        <option value="minuman">Minuman Tradisional</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">Harga (Rp)</label>
+                    <input type="number" id="new-menu-price" required min="1000" step="500" placeholder="cth. 25000" class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">URL Gambar / Foto</label>
+                    <input type="url" id="new-menu-img" placeholder="https://images.mediadirhub.com/vibe/... atau kosongkan" class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none">
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-gray-700 mb-1">Deskripsi Singkat</label>
+                    <textarea id="new-menu-desc" rows="2" placeholder="Deskripsi rasa atau bahan..." class="w-full px-3 py-2 border rounded-xl text-sm focus:ring-2 focus:ring-amber-500 focus:outline-none"></textarea>
+                </div>
+                <div class="mt-6 flex justify-end space-x-2 pt-2">
+                    <button type="button" onclick="closeModal('add-menu-modal')" class="px-4 py-2 border rounded-xl text-xs font-semibold text-gray-600 hover:bg-gray-50">Batal</button>
+                    <button type="submit" class="px-4 py-2 bg-amber-600 text-white rounded-xl text-xs font-semibold hover:bg-amber-700 shadow">Simpan Menu</button>
+                </div>
+            </form>
+        </div>
+    </div>
+
+    <!-- Modal: Daily Report System (Laporan Harian) -->
+    <div id="daily-report-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-2xl w-full p-6 shadow-2xl max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-100">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 rounded-lg bg-emerald-100 text-emerald-600 flex items-center justify-center">
+                        <i class="fa-solid fa-file-invoice-dollar"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-base text-gray-900">Laporan Harian Kasir</h3>
+                        <p class="text-[11px] text-gray-500" id="report-date-subtitle">Tanggal: --</p>
+                    </div>
+                </div>
+                <button onclick="closeModal('daily-report-modal')" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <!-- Report Scrollable Body -->
+            <div class="flex-1 overflow-y-auto space-y-4 pr-1">
+                <!-- Summary Cards Grid -->
+                <div class="grid grid-cols-3 gap-3">
+                    <div class="bg-emerald-50 border border-emerald-100 rounded-xl p-3">
+                        <div class="text-[11px] text-emerald-700 font-medium">Total Pendapatan</div>
+                        <div class="text-base sm:text-lg font-bold text-emerald-900 mt-1" id="rep-total-revenue">Rp 0</div>
+                    </div>
+                    <div class="bg-amber-50 border border-amber-100 rounded-xl p-3">
+                        <div class="text-[11px] text-amber-700 font-medium">Total Transaksi</div>
+                        <div class="text-base sm:text-lg font-bold text-amber-900 mt-1" id="rep-total-tx">0</div>
+                    </div>
+                    <div class="bg-blue-50 border border-blue-100 rounded-xl p-3">
+                        <div class="text-[11px] text-blue-700 font-medium">Rata-rata Struk</div>
+                        <div class="text-base sm:text-lg font-bold text-blue-900 mt-1" id="rep-avg-ticket">Rp 0</div>
+                    </div>
+                </div>
+
+                <!-- Sales Breakdown By Item / Category -->
+                <div>
+                    <h4 class="font-semibold text-xs text-gray-700 mb-2 flex items-center space-x-1.5">
+                        <i class="fa-solid fa-chart-pie text-amber-600"></i>
+                        <span>Item Terjual Hari Ini</span>
+                    </h4>
+                    <div id="rep-items-breakdown" class="bg-gray-50 border border-gray-200 rounded-xl p-3 text-xs space-y-2 max-h-40 overflow-y-auto">
+                        <div class="text-center text-gray-400 py-3">Belum ada item terjual hari ini.</div>
+                    </div>
+                </div>
+
+                <!-- Detailed Transactions Table -->
+                <div>
+                    <h4 class="font-semibold text-xs text-gray-700 mb-2 flex items-center space-x-1.5">
+                        <i class="fa-solid fa-list-check text-amber-600"></i>
+                        <span>Riwayat Transaksi Masuk</span>
+                    </h4>
+                    <div class="border border-gray-200 rounded-xl overflow-hidden">
+                        <table class="w-full text-left text-xs">
+                            <thead class="bg-gray-100 text-gray-600 font-semibold border-b">
+                                <tr>
+                                    <th class="p-2.5">Waktu</th>
+                                    <th class="p-2.5">Pelanggan / Meja</th>
+                                    <th class="p-2.5">Metode</th>
+                                    <th class="p-2.5 text-right">Total</th>
+                                </tr>
+                            </thead>
+                            <tbody id="rep-tx-table-body" class="divide-y divide-gray-100">
+                                <tr>
+                                    <td colspan="4" class="text-center py-4 text-gray-400">Belum ada transaksi tercatat.</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Report Footer Actions -->
+            <div class="mt-4 pt-3 border-t border-gray-100 flex justify-between items-center">
+                <button onclick="resetDailyReport()" class="text-xs text-red-500 hover:text-red-700 font-medium transition flex items-center space-x-1">
+                    <i class="fa-solid fa-rotate-right"></i>
+                    <span>Reset Laporan Hari Ini</span>
+                </button>
+                <div class="flex space-x-2">
+                    <button onclick="closeModal('daily-report-modal')" class="px-4 py-2 border rounded-xl text-xs font-semibold text-gray-600 hover:bg-gray-50">Tutup</button>
+                    <button onclick="printDailyReport()" class="px-4 py-2 bg-emerald-600 hover:bg-emerald-500 text-white rounded-xl text-xs font-semibold shadow flex items-center space-x-1.5">
+                        <i class="fa-solid fa-print"></i>
+                        <span>Cetak Laporan</span>
+                    </button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Modal: Install App / PWA Setup Guide -->
+    <div id="install-modal" class="fixed inset-0 bg-black/50 z-50 hidden flex items-center justify-center p-4">
+        <div class="bg-white rounded-2xl max-w-lg w-full p-6 shadow-2xl max-h-[90vh] flex flex-col">
+            <div class="flex justify-between items-center mb-4 pb-3 border-b border-gray-100">
+                <div class="flex items-center space-x-2">
+                    <div class="w-8 h-8 rounded-lg bg-indigo-100 text-indigo-600 flex items-center justify-center">
+                        <i class="fa-solid fa-mobile-screen-button"></i>
+                    </div>
+                    <div>
+                        <h3 class="font-bold text-base text-gray-900">Install Aplikasi Kasir (Android & OS)</h3>
+                        <p class="text-[11px] text-gray-500">Jadikan aplikasi native tanpa instalasi ribet</p>
+                    </div>
+                </div>
+                <button onclick="closeModal('install-modal')" class="text-gray-400 hover:text-gray-600"><i class="fa-solid fa-xmark text-lg"></i></button>
+            </div>
+
+            <div class="flex-1 overflow-y-auto space-y-4 text-xs text-gray-700 pr-1">
+                <!-- Direct Install Prompt Button if supported -->
+                <div id="pwa-install-banner" class="bg-indigo-50 border border-indigo-200 rounded-xl p-4 text-center hidden">
+                    <h4 class="font-bold text-indigo-900 text-sm mb-1">Perangkat Mendukung Instalasi Langsung</h4>
+                    <p class="text-indigo-700 mb-3">Klik tombol di bawah untuk langsung memasang aplikasi ini ke perangkat Anda.</p>
+                    <button id="btn-trigger-install" onclick="triggerPWAInstall()" class="bg-indigo-600 hover:bg-indigo-700 text-white font-bold py-2.5 px-6 rounded-xl shadow transition">
+                        <i class="fa-solid fa-download mr-1.5"></i> Install Aplikasi Sekarang
+                    </button>
+                </div>
+
+                <div class="grid grid-cols-1 md:grid-cols-2 gap-3">
+                    <!-- Android Guide -->
+                    <div class="bg-gray-50 border border-gray-200 rounded-xl p-3">
+                        <h5 class="font-bold text-gray-900 mb-1 flex items-center">
+                            <i class="fa-brands fa-android text-green-600 mr-1.5 text-base"></i> Android (Chrome / Edge)
+                        </h5>
+                        <ol class="list-decimal list-inside space-y-1 text-gray-600">
+                            Fungsi ini mengubah web menjadi aplikasi offline siap pakai.
+                            <li>Buka menu titik tiga (<strong>⋮</strong>) di sudut kanan atas browser.</li>
+                            <li>Pilih opsi <strong class="text-gray-800">"Tambahkan ke Layar Utama"</strong> atau <strong class="text-gray-800">"Instal Aplikasi"</strong>.</li>
+                            <li>Konfirmasi instalasi. Aplikasi akan muncul di menu HP Anda!</li>
+                        </ol>
+                    </div>
+
+                    <!-- iOS / Desktop Guide -->
+                    <div class="bg-gray-50 border border-gray-200 rounded-xl p-3">
+                        <h5 class="font-bold text-gray-900 mb-1 flex items-center">
+                            <i class="fa-solid fa-desktop text-blue-600 mr-1.5 text-base"></i> Windows / macOS / iOS
+                        </h5>
+                        <ol class="list-decimal list-inside space-y-1 text-gray-600">
+                            <li>Di PC (Chrome/Edge), klik ikon <strong class="text-gray-800">Install</strong> di bilah alamat URL kanan.</li>
+                            <li>Di Safari iOS, ketuk tombol <strong class="text-gray-800">Share (Bagikan)</strong>.</li>
+                            <li>Pilih <strong class="text-gray-800">"Add to Home Screen"</strong> / Tambahkan ke Dock.</li>
+                        </ol>
+                    </div>
+                </div>
+
+                <div class="bg-amber-50 border border-amber-200 rounded-xl p-3 text-amber-800">
+                    <strong class="font-semibold block mb-0.5"><i class="fa-solid fa-circle-info mr-1"></i> Keunggulan Mode Aplikasi (PWA):</strong>
+                    Data menu dan transaksi tetap tersimpan aman di perangkat menggunakan memori lokal (LocalStorage) meskipun Anda membuka aplikasinya tanpa koneksi internet (offline).
+                </div>
+            </div>
+
+            <div class="mt-4 pt-3 border-t border-gray-100 flex justify-end">
+                <button onclick="closeModal('install-modal')" class="px-4 py-2 bg-gray-900 hover:bg-gray-800 text-white rounded-xl text-xs font-semibold shadow">Mengerti & Tutup</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Custom Notification Box -->
+    <div id="toast" class="fixed bottom-5 right-5 bg-gray-900 text-white px-4 py-3 rounded-xl shadow-lg transform translate-y-20 opacity-0 transition-all duration-300 z-50 flex items-center space-x-2 text-xs">
+        <i class="fa-solid fa-circle-check text-amber-400"></i>
+        <span id="toast-msg">Menu berhasil ditambahkan</span>
+    </div>
+
+    <script>
+        // PWA Deferred Prompt handling
+        let deferredPrompt;
+        window.addEventListener('beforeinstallprompt', (e) => {
+            e.preventDefault();
+            deferredPrompt = e;
+            const banner = document.getElementById('pwa-install-banner');
+            if(banner) banner.classList.remove('hidden');
+        });
+
+        function openInstallModal() {
+            document.getElementById('install-modal').classList.remove('hidden');
+        }
+
+        async function triggerPWAInstall() {
+            if (deferredPrompt) {
+                deferredPrompt.prompt();
+                const { outcome } = await deferredPrompt.userChoice;
+                if (outcome === 'accepted') {
+                    showToast('Terima kasih telah menginstal aplikasi!');
+                }
+                deferredPrompt = null;
+                document.getElementById('pwa-install-banner').classList.add('hidden');
+                closeModal('install-modal');
+            } else {
+                showToast('Aplikasi sudah terinstal atau browser tidak mendukung prompt otomatis. Ikuti panduan di bawah.');
+            }
+        }
+
+        // Register Service Worker for Offline PWA Support
+        if ('serviceWorker' in navigator) {
+            window.addEventListener('load', () => {
+                // Register inline or virtual service worker blob for seamless sandbox execution
+                const swCode = `
+                    self.addEventListener('install', (e) => {
+                        e.waitUntil(caches.open('padang-pos-v1').then((cache) => {
+                            return cache.addAll(['./']);
+                        }));
+                    });
+                    self.addEventListener('fetch', (e) => {
+                        e.respondWith(
+                            caches.match(e.request).then((response) => {
+                                return response || fetch(e.request);
+                            })
+                        );
+                    });
+                `;
+                const blob = new Blob([swCode], { type: 'application/javascript' });
+                const swUrl = URL.createObjectURL(blob);
+                navigator.serviceWorker.register(swUrl)
+                    .then(() => console.log('PWA Service Worker registered successfully.'))
+                    .catch((err) => console.log('PWA Service Worker registration failed:', err));
+            });
+        }
+
+        // Initial Default Menu Catalog
+        const defaultMenuItems = [
+            { id: 1, name: "Nasi Padang", category: "utama", price: 28000, desc: "Nasi dengan lauk rendang dan sambal", img: "https://images.mediadirhub.com/vibe/steamed-rice-with-beef-rendang-fried-egg-and-sambal-on-ceramic-plate.png" },
+            { id: 2, name: "Rendang Sapi", category: "utama", price: 35000, desc: "Daging sapi dimasak dengan rempah khas", img: "https://images.mediadirhub.com/vibe/slow-cooked-beef-in-dark-coconut-gravy-with-aromatic-spices.png" },
+            { id: 3, name: "Gulai Ayam", category: "utama", price: 25000, desc: "Ayam dalam kuah kari kental", img: "https://images.mediadirhub.com/vibe/chicken-pieces-in-thick-golden-coconut-curry-sauce-with-herbs.png" },
+            { id: 4, name: "Sate Padang", category: "utama", price: 30000, desc: "Daging sapi panggang dengan kuah kacang", img: "https://images.mediadirhub.com/vibe/grilled-beef-skewers-with-rich-peanut-sauce-in-small-ceramic-bowl.png" },
+            { id: 5, name: "Ikan Bakar", category: "utama", price: 32000, desc: "Ikan segar dibakar dengan bumbu rempah", img: "https://images.mediadirhub.com/vibe/whole-grilled-fish-on-banana-leaf-with-chili-and-lime-garnish.png" },
+            { id: 6, name: "Ayam Pop", category: "utama", price: 26000, desc: "Ayam rebus dengan kulit krispi", img: "https://images.mediadirhub.com/vibe/crispy-skinned-boiled-chicken-with-steamed-rice-and-side-sauce.png" },
+            
+            { id: 7, name: "Telur Balado", category: "pendamping", price: 8000, desc: "Telur rebus dengan sambal pedas", img: "https://images.mediadirhub.com/vibe/boiled-eggs-in-vibrant-red-chili-sauce-with-fried-shallots.png" },
+            { id: 8, name: "Perkedel Kentang", category: "pendamping", price: 6000, desc: "Kentang tumbuk goreng krispi", img: "https://images.mediadirhub.com/vibe/golden-brown-potato-patties-with-crispy-edges-on-white-plate.png" },
+            { id: 9, name: "Sambal Goreng Hati", category: "pendamping", price: 12000, desc: "Hati ayam dimasak dengan sambal", img: "https://images.mediadirhub.com/vibe/chicken-liver-stir-fried-in-spicy-red-chili-sauce-with-garlic.png" },
+            { id: 10, name: "Tempe Goreng", category: "pendamping", price: 5000, desc: "Tempe goreng hingga krispi", img: "https://images.mediadirhub.com/vibe/deep-fried-tempeh-slices-with-golden-crust-on-bamboo-tray.png" },
+
+            { id: 11, name: "Daun Singkong", category: "sayur", price: 7000, desc: "Daun singkong dimasak dengan santan", img: "https://images.mediadirhub.com/vibe/cassava-leaves-in-creamy-coconut-milk-with-chili-and-lemongrass.png" },
+            { id: 12, name: "Kacang Panjang", category: "sayur", price: 7000, desc: "Kacang panjang tumis dengan bawang", img: "https://images.mediadirhub.com/vibe/stir-fried-long-beans-with-garlic-and-chili-on-ceramic-dish.png" },
+            { id: 13, name: "Lalapan Segar", category: "sayur", price: 5000, desc: "Timun, tomat, dan daun kemangi", img: "https://images.mediadirhub.com/vibe/fresh-cucumber-tomato-and-basil-leaves-on-banana-leaf.png" },
+            { id: 14, name: "Terung Balado", category: "sayur", price: 8000, desc: "Terung rebus dengan sambal pedas", img: "https://images.mediadirhub.com/vibe/boiled-eggplant-in-spicy-red-chili-sauce-with-fried-shallots.png" },
+
+            { id: 15, name: "Es Jeruk", category: "minuman", price: 10000, desc: "Jeruk segar dengan es batu", img: "https://images.mediadirhub.com/vibe/fresh-orange-juice-in-tall-glass-with-ice-cubes-and-citrus-slice.png" },
+            { id: 16, name: "Teh Tarik", category: "minuman", price: 12000, desc: "Teh manis tarik antar gelas", img: "https://images.mediadirhub.com/vibe/sweet-tea-poured-between-two-glasses-creating-foam-and-steam.png" },
+            { id: 17, name: "Kopi Tubruk", category: "minuman", price: 10000, desc: "Kopi hitam tanpa saringan", img: "https://images.mediadirhub.com/vibe/black-coffee-in-small-ceramic-cup-with-grounds-visible-at-bottom.png" },
+            { id: 18, name: "Air Kelapa", category: "minuman", price: 15000, desc: "Air kelapa muda segar", img: "https://images.mediadirhub.com/vibe/fresh-young-coconut-with-straw-inserted-on-wooden-stand.png" }
+        ];
+
+        let menuItems = [];
+        let cart = [];
+        let transactions = [];
+        let currentCategory = 'all';
+        let customerInfo = { name: "Umum / Tamu", table: "Meja 01" };
+        let cashierInfo = { name: "Budi Santoso", register: "POS-01 Padang" };
+
+        // Initialization on Load
+        window.onload = function() {
+            loadMenuItems();
+            loadTransactions();
+            renderMenu(menuItems);
+        };
+
+        // Load & Save Menu using LocalStorage
+        function loadMenuItems() {
+            const saved = localStorage.getItem('padang_pos_menu_items');
+            if (saved) {
+                try {
+                    menuItems = JSON.parse(saved);
+                } catch(e) {
+                    menuItems = [...defaultMenuItems];
+                }
+            } else {
+                menuItems = [...defaultMenuItems];
+                saveMenuItems();
+            }
+        }
+
+        function saveMenuItems() {
+            localStorage.setItem('padang_pos_menu_items', JSON.stringify(menuItems));
+        }
+
+        // Transactions Storage
+        function loadTransactions() {
+            const saved = localStorage.getItem('padang_pos_transactions');
+            if (saved) {
+                try {
+                    transactions = JSON.parse(saved);
+                } catch(e) {
+                    transactions = [];
+                }
+            }
+        }
+
+        function saveTransactions() {
+            localStorage.setItem('padang_pos_transactions', JSON.stringify(transactions));
+        }
+
+        // Render Menu Grid
+        function renderMenu(items) {
+            const grid = document.getElementById('menu-grid');
+            grid.innerHTML = '';
+
+            if(items.length === 0) {
+                grid.innerHTML = `<div class="col-span-full text-center py-10 text-gray-400 text-xs">Menu tidak ditemukan</div>`;
+                return;
+            }
+
+            items.forEach(item => {
+                const card = document.createElement('div');
+                card.className = "bg-white border border-gray-200 rounded-xl overflow-hidden hover:shadow-md transition flex flex-col justify-between group relative";
+                
+                card.innerHTML = `
+                    <div class="absolute top-2 left-2 z-10">
+                        <button onclick="deleteMenuItem(event, ${item.id})" title="Hapus Menu" class="w-7 h-7 bg-white/90 hover:bg-red-600 hover:text-white text-red-500 rounded-full shadow flex items-center justify-center transition text-xs">
+                            <i class="fa-solid fa-trash-can"></i>
+                        </button>
+                    </div>
+                    <div class="relative overflow-hidden h-32 bg-gray-100 cursor-pointer" onclick="addToCart(${item.id})">
+                        <img src="${item.img}" alt="${item.name}" class="w-full h-full object-cover group-hover:scale-105 transition duration-300" onerror="this.src='https://placehold.co/200x200/F59E0B/FFFFFF?text=Menu'">
+                        <div class="absolute top-2 right-2 bg-amber-600 text-white text-[10px] font-semibold px-2 py-0.5 rounded-md shadow-sm">
+                            Rp ${item.price.toLocaleString('id-ID')}
+                        </div>
+                    </div>
+                    <div class="p-3 flex flex-col justify-between flex-1">
+                        <div class="cursor-pointer" onclick="addToCart(${item.id})">
+                            <h3 class="font-semibold text-xs text-gray-800 line-clamp-1">${item.name}</h3>
+                            <p class="text-[11px] text-gray-500 line-clamp-1 mt-0.5">${item.desc}</p>
+                        </div>
+                        <button onclick="addToCart(${item.id})" class="mt-2 w-full bg-amber-50 text-amber-700 hover:bg-amber-600 hover:text-white text-[11px] font-semibold py-1.5 rounded-lg transition">
+                            <i class="fa-solid fa-plus mr-1"></i> Tambah
+                        </button>
+                    </div>
+                `;
+                grid.appendChild(card);
+            });
+        }
+
+        // Add New Menu Modal & Handler
+        function openAddMenuModal() {
+            document.getElementById('add-menu-form').reset();
+            document.getElementById('add-menu-modal').classList.remove('hidden');
+        }
+
+        function handleAddNewMenu(e) {
+            e.preventDefault();
+            const name = document.getElementById('new-menu-name').value.trim();
+            const category = document.getElementById('new-menu-category').value;
+            const price = parseFloat(document.getElementById('new-menu-price').value);
+            let img = document.getElementById('new-menu-img').value.trim();
+            const desc = document.getElementById('new-menu-desc').value.trim();
+
+            if(!img) {
+                img = "https://images.mediadirhub.com/vibe/steamed-rice-with-beef-rendang-fried-egg-and-sambal-on-ceramic-plate.png";
+            }
+
+            const newId = menuItems.length > 0 ? Math.max(...menuItems.map(m => m.id)) + 1 : 1;
+            const newItem = { id: newId, name, category, price, desc, img };
+
+            menuItems.push(newItem);
+            saveMenuItems();
+            filterMenu();
+            closeModal('add-menu-modal');
+            showToast(`Menu "${name}" berhasil ditambahkan!`);
+        }
+
+        // Delete Menu Item
+        function deleteMenuItem(event, id) {
+            event.stopPropagation();
+            const item = menuItems.find(m => m.id === id);
+            if(!item) return;
+
+            if(confirm(`Yakin ingin menghapus menu "${item.name}" dari daftar?`)) {
+                menuItems = menuItems.filter(m => m.id !== id);
+                saveMenuItems();
+                filterMenu();
+                showToast(`Menu "${item.name}" dihapus`);
+            }
+        }
+
+        // Filter by Category
+        function filterCategory(category) {
+            currentCategory = category;
+            document.querySelectorAll('.category-btn').forEach(btn => {
+                btn.className = "category-btn whitespace-nowrap px-4 py-2 rounded-xl text-xs font-semibold bg-gray-100 text-gray-600 hover:bg-gray-200 transition";
+            });
+            const activeBtn = document.getElementById(`cat-btn-${category}`);
+            if(activeBtn) {
+                activeBtn.className = "category-btn whitespace-nowrap px-4 py-2 rounded-xl text-xs font-semibold bg-amber-600 text-white shadow-sm transition";
+            }
+            filterMenu();
+        }
+
+        // Filter by Search & Category
+        function filterMenu() {
+            const query = document.getElementById('search-input').value.toLowerCase();
+            const filtered = menuItems.filter(item => {
+                const matchCategory = currentCategory === 'all' || item.category === currentCategory;
+                const matchQuery = item.name.toLowerCase().includes(query) || item.desc.toLowerCase().includes(query);
+                return matchCategory && matchQuery;
+            });
+            renderMenu(filtered);
+        }
+
+        // Cart Logic
+        function addToCart(id) {
+            const item = menuItems.find(m => m.id === id);
+            if(!item) return;
+            const existing = cart.find(c => c.id === id);
+            if(existing) {
+                existing.qty += 1;
+            } else {
+                cart.push({ ...item, qty: 1 });
+            }
+            updateCartUI();
+            showToast(`${item.name} ditambahkan ke pesanan`);
+        }
+
+        function updateQuantity(id, change) {
+            const item = cart.find(c => c.id === id);
+            if(item) {
+                item.qty += change;
+                if(item.qty <= 0) {
+                    cart = cart.filter(c => c.id !== id);
+                }
+            }
+            updateCartUI();
+        }
+
+        function clearCart() {
+            cart = [];
+            updateCartUI();
+        }
+
+        function updateCartUI() {
+            const container = document.getElementById('cart-items-container');
+            container.innerHTML = '';
+
+            if(cart.length === 0) {
+                container.innerHTML = `
+                    <div class="text-center text-gray-400 py-12">
+                        <i class="fa-solid fa-basket-shopping text-4xl mb-2 text-gray-300"></i>
+                        <p class="text-sm">Belum ada pesanan dipilih.<br>Silakan klik menu di sebelah kiri.</p>
+                    </div>
+                `;
+                document.getElementById('subtotal-price').innerText = 'Rp 0';
+                document.getElementById('tax-price').innerText = 'Rp 0';
+                document.getElementById('total-price').innerText = 'Rp 0';
+                return;
+            }
+
+            let subtotal = 0;
+            cart.forEach(item => {
+                subtotal += item.price * item.qty;
+                const row = document.createElement('div');
+                row.className = "flex items-center justify-between py-2.5 first:pt-0 last:pb-0";
+                row.innerHTML = `
+                    <div class="flex-1 pr-2">
+                        <h4 class="font-semibold text-xs text-gray-800">${item.name}</h4>
+                        <div class="text-[11px] text-amber-600">Rp ${item.price.toLocaleString('id-ID')}</div>
+                    </div>
+                    <div class="flex items-center space-x-2">
+                        <button onclick="updateQuantity(${item.id}, -1)" class="w-6 h-6 rounded-lg bg-gray-100 hover:bg-gray-200 text-gray-600 flex items-center justify-center text-xs"><i class="fa-solid fa-minus"></i></button>
+                        <span class="text-xs font-semibold w-5 text-center">${item.qty}</span>
+                        <button onclick="updateQuantity(${item.id}, 1)" class="w-6 h-6 rounded-lg bg-amber-100 hover:bg-amber-200 text-amber-700 flex items-center justify-center text-xs"><i class="fa-solid fa-plus"></i></button>
+                    </div>
+                `;
+                container.appendChild(row);
+            });
+
+            const tax = subtotal * 0.10;
+            const total = subtotal + tax;
+
+            document.getElementById('subtotal-price').innerText = `Rp ${subtotal.toLocaleString('id-ID')}`;
+            document.getElementById('tax-price').innerText = `Rp ${tax.toLocaleString('id-ID')}`;
+            document.getElementById('total-price').innerText = `Rp ${total.toLocaleString('id-ID')}`;
+        }
+
+        // Modals Control
+        function openCashierSessionModal() {
+            document.getElementById('session-modal').classList.remove('hidden');
+        }
+
+        function openTableModal() {
+            document.getElementById('table-modal').classList.remove('hidden');
+        }
+
+        function closeModal(modalId) {
+            document.getElementById(modalId).classList.add('hidden');
+        }
+
+        function saveCashierSession() {
+            const name = document.getElementById('modal-cashier-name').value;
+            const reg = document.getElementById('modal-register-no').value;
+            if(name) cashierInfo.name = name;
+            if(reg) cashierInfo.register = reg;
+            document.getElementById('session-status-text').innerText = `Aktif (${cashierInfo.register})`;
+            closeModal('session-modal');
+            showToast('Sesi kasir diperbarui');
+        }
+
+        function saveTableCustomer() {
+            const name = document.getElementById('input-customer-name').value;
+            const table = document.getElementById('input-table-no').value;
+            if(name) customerInfo.name = name;
+            customerInfo.table = table;
+            
+            document.getElementById('display-customer-name').innerText = customerInfo.name;
+            document.getElementById('display-table-no').innerText = customerInfo.table;
+            closeModal('table-modal');
+            showToast('Data pelanggan diperbarui');
+        }
+
+        // Checkout Process
+        function processCheckout(method) {
+            if(cart.length === 0) {
+                showToast('Keranjang masih kosong!');
+                return;
+            }
+
+            let subtotal = cart.reduce((sum, item) => sum + (item.price * item.qty), 0);
+            let tax = subtotal * 0.10;
+            let total = subtotal + tax;
+
+            // Record transaction for daily report
+            const newTx = {
+                id: 'TRX-' + Date.now().toString().slice(-6),
+                time: new Date().toLocaleTimeString('id-ID', { hour: '2-digit', minute: '2-digit' }),
+                date: new Date().toLocaleDateString('id-ID'),
+                customer: customerInfo.name,
+                table: customerInfo.table,
+                cashier: cashierInfo.name,
+                method: method,
+                items: [...cart],
+                subtotal: subtotal,
+                tax: tax,
+                total: total
+            };
+
+            transactions.unshift(newTx);
+            saveTransactions();
+
+            const receiptContainer = document.getElementById('receipt-summary');
+            receiptContainer.innerHTML = `
+                <div class="border-b pb-2 mb-2">
+                    <p><strong>Kasir:</strong> ${cashierInfo.name}</p>
+                    <p><strong>Pelanggan:</strong> ${customerInfo.name} (${customerInfo.table})</p>
+                    <p><strong>Waktu:</strong> ${newTx.time}</p>
+                </div>
+                <div class="space-y-1 max-h-32 overflow-y-auto mb-2">
+                    ${cart.map(i => `<div class="flex justify-between"><span>${i.qty}x ${i.name}</span><span>Rp ${(i.price * i.qty).toLocaleString('id-ID')}</span></div>`).join('')}
+                </div>
+                <div class="border-t pt-2 font-semibold">
+                    <div class="flex justify-between"><span>Metode:</span> <span>${method}</span></div>
+                    <div class="flex justify-between text-amber-700 font-bold mt-1"><span>Total:</span> <span>Rp ${total.toLocaleString('id-ID')}</span></div>
+                </div>
+            `;
+
+            document.getElementById('payment-modal').classList.remove('hidden');
+        }
+
+        function printReceipt() {
+            showToast('Struk berhasil dicetak ke printer POS');
+        }
+
+        function finishTransaction() {
+            cart = [];
+            updateCartUI();
+            closeModal('payment-modal');
+            showToast('Transaksi selesai, siap melayani tamu berikutnya.');
+        }
+
+        // Daily Report Functions
+        function openDailyReportModal() {
+            document.getElementById('report-date-subtitle').innerText = `Tanggal: ${new Date().toLocaleDateString('id-ID', { weekday: 'long', year: 'numeric', month: 'long', day: 'numeric' })}`;
+            
+            let totalRevenue = transactions.reduce((sum, tx) => sum + tx.total, 0);
+            let totalTxCount = transactions.length;
+            let avgTicket = totalTxCount > 0 ? totalRevenue / totalTxCount : 0;
+
+            document.getElementById('rep-total-revenue').innerText = `Rp ${totalRevenue.toLocaleString('id-ID')}`;
+            document.getElementById('rep-total-tx').innerText = totalTxCount;
+            document.getElementById('rep-avg-ticket').innerText = `Rp ${Math.round(avgTicket).toLocaleString('id-ID')}`;
+
+            // Aggregate items sold
+            let itemCounts = {};
+            transactions.forEach(tx => {
+                tx.items.forEach(item => {
+                    if(!itemCounts[item.name]) {
+                        itemCounts[item.name] = { qty: 0, revenue: 0 };
+                    }
+                    itemCounts[item.name].qty += item.qty;
+                    itemCounts[item.name].revenue += item.price * item.qty;
+                });
+            });
+
+            const breakdownContainer = document.getElementById('rep-items-breakdown');
+            breakdownContainer.innerHTML = '';
+            const itemKeys = Object.keys(itemCounts);
+
+            if(itemKeys.length === 0) {
+                breakdownContainer.innerHTML = `<div class="text-center text-gray-400 py-3">Belum ada item terjual hari ini.</div>`;
+            } else {
+                itemKeys.forEach(name => {
+                    const data = itemCounts[name];
+                    const row = document.createElement('div');
+                    row.className = "flex justify-between items-center bg-white p-2 rounded-lg border border-gray-100";
+                    row.innerHTML = `
+                        <div>
+                            <span class="font-semibold text-gray-800">${name}</span>
+                            <span class="text-[10px] text-gray-500 ml-2">(${data.qty} porsi)</span>
+                        </div>
+                        <span class="font-semibold text-emerald-600">Rp ${data.revenue.toLocaleString('id-ID')}</span>
+                    `;
+                    breakdownContainer.appendChild(row);
+                });
+            }
+
+            // Transaction Table Body
+            const txBody = document.getElementById('rep-tx-table-body');
+            txBody.innerHTML = '';
+
+            if(transactions.length === 0) {
+                txBody.innerHTML = `<tr><td colspan="4" class="text-center py-4 text-gray-400">Belum ada transaksi tercatat.</td></tr>`;
+            } else {
+                transactions.forEach(tx => {
+                    const tr = document.createElement('tr');
+                    tr.className = "hover:bg-gray-50 transition";
+                    tr.innerHTML = `
+                        <td class="p-2.5 font-medium text-gray-600">${tx.time}</td>
+                        <td class="p-2.5">
+                            <div class="font-semibold text-gray-800">${tx.customer}</div>
+                            <div class="text-[10px] text-gray-500">${tx.table}</div>
+                        </td>
+                        <td class="p-2.5"><span class="bg-amber-100 text-amber-800 px-2 py-0.5 rounded text-[10px] font-semibold">${tx.method}</span></td>
+                        <td class="p-2.5 text-right font-semibold text-emerald-700">Rp ${tx.total.toLocaleString('id-ID')}</td>
+                    `;
+                    txBody.appendChild(tr);
+                });
+            }
+
+            document.getElementById('daily-report-modal').classList.remove('hidden');
+        }
+
+        function resetDailyReport() {
+            if(confirm("Yakin ingin mereset seluruh data laporan harian hari ini? Riwayat transaksi akan dikosongkan.")) {
+                transactions = [];
+                saveTransactions();
+                openDailyReportModal();
+                showToast("Laporan harian berhasil direset");
+            }
+        }
+
+        function printDailyReport() {
+            window.print();
+        }
+
+        // Toast Notification
+        function showToast(msg) {
+            const toast = document.getElementById('toast');
+            document.getElementById('toast-msg').innerText = msg;
+            toast.classList.remove('translate-y-20', 'opacity-0');
+            setTimeout(() => {
+                toast.classList.add('translate-y-20', 'opacity-0');
+            }, 2500);
+        }
+    </script>
+</body>
+</html>
